@@ -38,7 +38,7 @@ def main():
 
     batch_size = 16
     lr = 2e-5
-    epochs = 1
+    epochs = 2
 
     output_dir = "models/distilbert_imdb_small"
     os.makedirs(output_dir, exist_ok=True)
@@ -120,28 +120,33 @@ def main():
                 print(f"Epoch {epoch+1} | Step {step}/{len(train_loader)} | Avg Loss: {avg_loss:.4f}")
 
     # --- Quick evaluation (accuracy only for now) ---
+    # --- Quick evaluation (detect collapse to one class) ---
     model.eval()
-    correct = 0
-    total = 0
+    all_preds = []
+    all_labels = []
 
     with torch.no_grad():
         for batch in test_loader:
             batch = {k: v.to(device) for k, v in batch.items()}
-
             outputs = model(**batch)
             preds = torch.argmax(outputs.logits, dim=1)
 
-            labels = batch["labels"]
-            correct += (preds == labels).sum().item()
-            total += labels.size(0)
+            all_preds.extend(preds.cpu().tolist())
+            all_labels.extend(batch["labels"].cpu().tolist())
 
-    acc = correct / total
-    print(f"Test Accuracy on small subset: {acc:.4f}")
+    all_preds = np.array(all_preds)
+    all_labels = np.array(all_labels)
+
+    acc = (all_preds == all_labels).mean()
+    p0 = (all_preds == 0).mean()
+    p1 = (all_preds == 1).mean()
+    print(f"[Quick Eval] Acc: {acc:.4f} | Pred% class0: {p0:.3f} | Pred% class1: {p1:.3f}")
 
     # --- Save model + tokenizer ---
     model.save_pretrained(output_dir)
     tokenizer.save_pretrained(output_dir)
     print("Saved to:", output_dir)
+
 
 
 if __name__ == "__main__":
