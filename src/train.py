@@ -46,12 +46,19 @@ def main():
     # --- Load IMDb dataset (HuggingFace datasets) ---
     ds = load_dataset("imdb")
 
-    # Small subset for learning
-    train_texts = ds["train"]["text"][:train_subset_size]
-    train_labels = ds["train"]["label"][:train_subset_size]
+    # Shuffle then take subset (IMPORTANT to avoid label-ordered slices)
+    train_small = ds["train"].shuffle(seed=42).select(range(train_subset_size))
+    test_small  = ds["test"].shuffle(seed=42).select(range(test_subset_size))
 
-    test_texts = ds["test"]["text"][:test_subset_size]
-    test_labels = ds["test"]["label"][:test_subset_size]
+    # Small subset for learning
+    train_texts  = train_small["text"]
+    train_labels = train_small["label"]
+
+    test_texts  = test_small["text"]
+    test_labels = test_small["label"]
+
+    print("Train label counts:", np.bincount(train_labels))
+    print("Test  label counts:", np.bincount(test_labels))
 
     # --- Tokenizer ---
     tokenizer = AutoTokenizer.from_pretrained(model_name)
