@@ -128,10 +128,10 @@ def main():
         for batch in test_loader:
             batch = {k: v.to(device) for k, v in batch.items()}
 
-            labels = batch["labels"]
-            outputs = model(input_ids=batch["input_ids"], attention_mask=batch["attention_mask"])
+            outputs = model(**batch)
             preds = torch.argmax(outputs.logits, dim=1)
 
+            labels = batch["labels"]
             correct += (preds == labels).sum().item()
             total += labels.size(0)
 

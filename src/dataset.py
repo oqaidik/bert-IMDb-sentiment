@@ -17,7 +17,6 @@ class IMDbDataset(Dataset):
 
         encoding = self.tokenizer(
             text,
-            padding='max_length',
             truncation=True,
             max_length=self.max_length,
             return_tensors='pt'
