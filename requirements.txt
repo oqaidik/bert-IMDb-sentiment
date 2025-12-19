@@ -7,3 +7,5 @@ numpy
 fastapi
 uvicorn
 pydantic
+onnx
+onnxruntime
