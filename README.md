@@ -49,6 +49,22 @@ The project is designed as a **portfolio-grade example** of modern NLP engineeri
 - Training performed on a **balanced shuffled subset** for fast iteration
 
 ---
+## ⚡ Performance Optimization (ONNX Runtime)
+
+To improve inference speed on CPU, the fine-tuned DistilBERT model was exported to **ONNX format** and executed using **ONNX Runtime**.
+
+### Benchmark (CPU)
+
+Average latency measured on a single input sentence:
+
+| Backend | Avg Latency |
+|-------|------------|
+| PyTorch | 28.95 ms |
+| ONNX Runtime | 10.04 ms |
+
+This represents an approximate **2.9× speed-up** on CPU inference.
+
+ONNX is preferred for inference when available.
 
 ## 📊 Evaluation Results
 
@@ -81,6 +97,9 @@ Output:
 Prediction: positive (confidence=0.96)
 Probabilities [negative, positive]: [0.04, 0.96]
 🌐 API Deployment (FastAPI)
+
+The API automatically uses the ONNX Runtime backend for faster CPU inference when the ONNX model is available.
+
 The model is deployed as a REST API using FastAPI.
 
 Start the server
