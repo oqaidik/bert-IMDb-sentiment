@@ -1,43 +1,56 @@
-# IMDb Sentiment Analysis with DistilBERT (Fine-Tuning)
+# IMDb Sentiment Analysis API with DistilBERT
 
-This project demonstrates **fine-tuning a pretrained Transformer model (DistilBERT)** for binary sentiment classification (positive vs negative) on the **IMDb movie reviews dataset**.
+This project implements an **end-to-end NLP pipeline** for sentiment analysis using a **pretrained Transformer (DistilBERT)** fine-tuned on the IMDb movie reviews dataset.
 
-The goal is to build an **end-to-end modern NLP pipeline** including:
-- dataset handling
-- fine-tuning a Transformer
+It covers the **full machine learning lifecycle**:
+- dataset preparation
+- fine-tuning a Transformer (transfer learning)
 - robust evaluation (Accuracy, F1, confusion matrix)
-- inference on custom text
+- inference on new text
+- deployment as a REST API using FastAPI
 
-This project is designed as a **portfolio-ready example** of transfer learning and fine-tuning in NLP.
-
----
-
-## 📌 Model & Dataset
-
-- **Model**: `distilbert-base-uncased`
-- **Dataset**: IMDb Movie Reviews  
-  Source: Hugging Face `datasets` library
-- **Task**: Binary sentiment classification (0 = negative, 1 = positive)
+The project is designed as a **portfolio-grade example** of modern NLP engineering.
 
 ---
 
-## 🧠 Methodology
+## 🎯 Task Description
 
-1. Load IMDb dataset using Hugging Face `datasets`
-2. Shuffle and select a **balanced subset** for fast iteration
-3. Tokenize text using DistilBERT tokenizer
-4. Fine-tune the pretrained Transformer
-5. Evaluate using:
-   - Accuracy
-   - F1-score
-   - Confusion Matrix
-6. Run inference on unseen text
-
-Dynamic padding is used via `DataCollatorWithPadding` for efficiency.
+- **Task**: Binary sentiment classification  
+- **Labels**:
+  - `0` → Negative
+  - `1` → Positive
+- **Input**: Raw movie review text
+- **Output**: Sentiment label + confidence score
 
 ---
 
-## 📊 Results (Small Subset)
+## 🧠 Model & Dataset
+
+### Model
+- **DistilBERT** (`distilbert-base-uncased`)
+- Lightweight Transformer optimized for speed
+- Fine-tuned using supervised learning
+
+### Dataset
+- **IMDb Movie Reviews**
+- Source: Hugging Face `datasets`
+- 50,000 labeled reviews
+- Balanced positive / negative classes
+
+---
+
+## ⚙️ Training Setup
+
+- Transfer learning (fine-tuning pretrained Transformer)
+- Dynamic padding using `DataCollatorWithPadding`
+- Optimizer: AdamW
+- Learning rate: `2e-5`
+- Max sequence length: `256` (training), `128` (inference)
+- Training performed on a **balanced shuffled subset** for fast iteration
+
+---
+
+## 📊 Evaluation Results
 
 Evaluation on a shuffled test subset (2,000 samples):
 
@@ -51,47 +64,47 @@ Confusion Matrix:
 [ 96 904]]
 
 
+Classification Report:
+- Both classes are predicted correctly
+- No class collapse
+- Stable generalization
+
 ---
 
-## 🚀 How to Run (Colab – GPU Recommended)
+## 🚀 Inference Example
 
-### 1️⃣ Clone the repository
 ```bash
-git clone https://github.com/oqaidik/bert-IMDb-sentiment.git
-cd bert-IMDb-sentiment
-2️⃣ Install dependencies
-
-pip install -r requirements.txt
-3️⃣ Train the model
-
-python src/train.py
-This will:
-
-fine-tune DistilBERT
-
-save the model to models/distilbert_imdb_small/
-
-4️⃣ Evaluate the model
-
-python src/eval.py
-Outputs:
-
-Accuracy
-
-F1-score
-
-Confusion matrix
-
-Classification report
-
-5️⃣ Run inference on custom text
-
-python src/predict.py --text "This movie was surprisingly good with great acting."
-Example output:
+python src/predict.py --text "This movie was fantastic with great acting."
+Output:
 
 
-Prediction: positive (confidence=0.94)
-Probabilities [neg, pos]: [0.06, 0.94]
+Prediction: positive (confidence=0.96)
+Probabilities [negative, positive]: [0.04, 0.96]
+🌐 API Deployment (FastAPI)
+The model is deployed as a REST API using FastAPI.
+
+Start the server
+
+uvicorn app:app --host 127.0.0.1 --port 8000
+Interactive API documentation
+Open in browser:
+
+http://127.0.0.1:8000/docs
+Example API request (PowerShell)
+
+Invoke-RestMethod -Method Post "http://127.0.0.1:8000/predict" `
+  -ContentType "application/json" `
+  -Body '{"text":"Terrible movie. Waste of time."}'
+Example response:
+
+{
+  "label": "negative",
+  "confidence": 0.94,
+  "probabilities": {
+    "negative": 0.94,
+    "positive": 0.06
+  }
+}
 📁 Project Structure
 
 bert-IMDb-sentiment/
@@ -100,30 +113,50 @@ bert-IMDb-sentiment/
 │   ├── dataset.py      # Custom PyTorch Dataset
 │   ├── train.py        # Fine-tuning script
 │   ├── eval.py         # Evaluation metrics
-│   └── predict.py      # Inference script
+│   ├── predict.py      # CLI inference
+│   └── infer.py        # Inference logic for API
 │
+├── app.py              # FastAPI application
 ├── requirements.txt
 ├── README.md
 └── models/             # Generated during training (not tracked in Git)
-⚠️ Notes
-Model checkpoints are not stored in GitHub (best practice).
+🔁 Reproducibility
+Model weights are not committed to the repository (best practice).
 
-Training can be re-run anytime to regenerate the model.
+To reproduce results:
 
-Designed for reproducibility and clarity.
+pip install -r requirements.txt
+python src/train.py
+python src/eval.py
+🧩 Technologies Used
+Python
+
+PyTorch
+
+Hugging Face Transformers
+
+Hugging Face Datasets
+
+FastAPI
+
+Uvicorn
+
+Scikit-learn
 
 🔮 Future Improvements
 Full dataset training
 
-Learning rate tuning
-
-Model comparison (BERT, RoBERTa)
+ONNX Runtime optimization for faster CPU inference
 
 Multilingual sentiment analysis (e.g., Moroccan Darija)
 
-Deployment with FastAPI or Streamlit
+Deployment on Hugging Face Spaces
+
+Streamlit web interface
+
+Authentication and rate limiting
 
 👤 Author
 Khalid Oqaidi
 PhD in Computer Science & Artificial Intelligence
-Focus: Machine Learning, NLP, and Responsible AI
+Research interests: Machine Learning, NLP, Responsible AI
