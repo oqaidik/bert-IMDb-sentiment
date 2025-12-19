@@ -20,7 +20,7 @@ def predict(text: str, model_dir: str, device: str):
 
     enc = {k: v.to(device) for k, v in enc.items()}
 
-    with torch.no_grad():
+    with torch.inference_mode():
         out = model(**enc)
         probs = torch.softmax(out.logits, dim=1).squeeze(0)
         pred = torch.argmax(probs).item()
